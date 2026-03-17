@@ -106,7 +106,8 @@ class: DemoBureau
 ## 🧪 Demo
 
 The demo_bureau.py script shows how to interact with rooms and components.
-
+video Youtube :
+https://youtu.be/B-Guj_zSua0
 ---
 
 ## 🚀 Usage
