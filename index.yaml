@@ -1,0 +1,25 @@
+pieces:
+  Bureau:
+    actionneurs:
+    - entity: light.hue_color_light_2
+      id: Eclairage_bureau
+      type: light
+    - entity: light.yeelight_colorb_0x1be516b8
+      id: Spot_bureau
+      type: light
+    recepteurs: []
+  chambre:
+    actionneurs: []
+    recepteurs: []
+  cuisine:
+    actionneurs: []
+    recepteurs: []
+  salle:
+    actionneurs: []
+    recepteurs: []
+  salon:
+    actionneurs: []
+    recepteurs: []
+  wc:
+    actionneurs: []
+    recepteurs: []
