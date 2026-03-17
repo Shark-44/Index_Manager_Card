@@ -1,0 +1,7 @@
+index_api:
+  module: api_index
+  class: IndexAPI
+
+demo_bureau:
+  module: demo_bureau
+  class: DemoBureau
