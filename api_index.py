@@ -61,9 +61,10 @@ class IndexAPI(hass.Hass):
 
     # ------------------------------------------------------------------
     # Endpoint /api/appdaemon/pieces
-    #   GET                          → liste toutes les pièces
-    #   POST { nom }                 → ajoute une pièce
-    #   POST { nom, action:"delete"} → supprime une pièce
+    #   GET                           → liste toutes les pièces
+    #   POST { nom }                  → ajoute une pièce normale
+    #   POST { nom, mobile: true }    → ajoute Materiel_mobile
+    #   POST { nom, action:"delete" } → supprime une pièce
     # ------------------------------------------------------------------
 
     async def pieces_endpoint(self, data, kwargs):
@@ -80,7 +81,7 @@ class IndexAPI(hass.Hass):
         if method == "POST":
             body   = await self._get_body(data, kwargs)
             nom    = body.get("nom")
-            action = body.get("action", "add")  # "add" par défaut, "delete" pour suppression
+            action = body.get("action", "add")
 
             if not nom:
                 return {"error": "nom requis"}, 400
@@ -98,7 +99,13 @@ class IndexAPI(hass.Hass):
             else:  # action == "add"
                 if nom in index["pieces"]:
                     return {"error": f"'{nom}' existe deja"}, 409
-                index["pieces"][nom] = {"actionneurs": [], "recepteurs": []}
+
+                # Materiel_mobile → uniquement appareils
+                if nom == "Materiel_mobile":
+                    index["pieces"][nom] = {"appareils": []}
+                else:
+                    index["pieces"][nom] = {"actionneurs": [], "recepteurs": []}
+
                 self.save_index(index)
                 self.log(f"Piece ajoutee : {nom}")
                 return {"message": f"'{nom}' ajoutee"}, 201
@@ -131,13 +138,18 @@ class IndexAPI(hass.Hass):
         if not all([piece, role, cid]):
             return {"error": "Champs requis : piece, role, id"}, 400
 
-        if role not in ("actionneurs", "recepteurs"):
-            return {"error": "role doit etre 'actionneurs' ou 'recepteurs'"}, 400
-
         index = self.load_index()
 
         if piece not in index["pieces"]:
             return {"error": f"'{piece}' introuvable"}, 404
+
+        # Validation du role selon la pièce
+        if piece == "Materiel_mobile":
+            if role != "appareils":
+                return {"error": "Materiel_mobile n'accepte que 'appareils'"}, 400
+        else:
+            if role not in ("actionneurs", "recepteurs"):
+                return {"error": "role doit etre 'actionneurs' ou 'recepteurs'"}, 400
 
         liste = index["pieces"][piece][role]
 
